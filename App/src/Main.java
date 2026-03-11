@@ -4,87 +4,132 @@ import java.util.HashMap;
 import java.util.Map;
 
 /*
- =========================================================
- Author : VEERANJANEYA REDDY
- Use Case 3 : Centralized Room Inventory Management
- =========================================================
+=========================================================
+Author : VEERANJANEYA REDDY
+Use Case 4 : Room Search & Availability Check
+=========================================================
 
- Description:
- This program demonstrates centralized room inventory
- management using a HashMap. The HashMap stores room
- type and available room count, ensuring a single
- source of truth for room availability.
+Description:
+This program demonstrates how guests can view
+available rooms without modifying inventory data.
 
- HashMap provides O(1) average lookup and update time,
- making it efficient for frequent availability checks.
+Room availability is stored in a centralized
+HashMap inside the RoomInventory class.
 
- Version : 3.0
+The RoomSearchService reads data from inventory
+and displays available rooms. It performs
+read-only operations on the inventory.
+
+Version : 4.0
 */
 
-/*-------------------------------------------------------
-  CLASS : RoomInventory
--------------------------------------------------------*/
+
+/*-----------------------------------------
+CLASS : Room
+-----------------------------------------*/
+class Room {
+
+    private String type;
+    private int beds;
+    private int size;
+    private double price;
+
+    public Room(String type, int beds, int size, double price) {
+        this.type = type;
+        this.beds = beds;
+        this.size = size;
+        this.price = price;
+    }
+
+    public void displayDetails(int available) {
+        System.out.println(type + " Room:");
+        System.out.println("Beds: " + beds);
+        System.out.println("Size: " + size + " sqft");
+        System.out.println("Price per night: " + price);
+        System.out.println("Available Rooms: " + available);
+        System.out.println();
+    }
+
+    public String getType() {
+        return type;
+    }
+}
+
+
+/*-----------------------------------------
+CLASS : RoomInventory
+-----------------------------------------*/
 class RoomInventory {
 
-    // HashMap to store room type and available rooms
     private Map<String, Integer> roomAvailability;
 
-    // Constructor
     public RoomInventory() {
         roomAvailability = new HashMap<>();
         initializeInventory();
     }
 
-    // Initialize inventory data
     private void initializeInventory() {
         roomAvailability.put("Single", 5);
         roomAvailability.put("Double", 3);
         roomAvailability.put("Suite", 2);
     }
 
-    // Get room availability
     public Map<String, Integer> getRoomAvailability() {
         return roomAvailability;
     }
+}
 
-    // Update room availability
-    public void updateAvailability(String roomType, int count) {
-        roomAvailability.put(roomType, count);
+
+/*-----------------------------------------
+CLASS : RoomSearchService
+-----------------------------------------*/
+class RoomSearchService {
+
+    public void searchAvailableRooms(
+            RoomInventory inventory,
+            Room singleRoom,
+            Room doubleRoom,
+            Room suiteRoom) {
+
+        Map<String, Integer> availability = inventory.getRoomAvailability();
+
+        System.out.println("Hotel Room Inventory Status\n");
+
+        if (availability.get("Single") > 0) {
+            singleRoom.displayDetails(availability.get("Single"));
+        }
+
+        if (availability.get("Double") > 0) {
+            doubleRoom.displayDetails(availability.get("Double"));
+        }
+
+        if (availability.get("Suite") > 0) {
+            suiteRoom.displayDetails(availability.get("Suite"));
+        }
     }
 }
 
-/*-------------------------------------------------------
-  CLASS : UseCase3InventorySetup (Main Class)
--------------------------------------------------------*/
+
+/*-----------------------------------------
+MAIN CLASS : UseCase4RoomSearch
+-----------------------------------------*/
 public class Main {
 
     public static void main(String[] args) {
 
         RoomInventory inventory = new RoomInventory();
-        Map<String, Integer> availability = inventory.getRoomAvailability();
 
-        System.out.println("Hotel Room Inventory Status\n");
+        Room singleRoom = new Room("Single", 1, 250, 1500.0);
+        Room doubleRoom = new Room("Double", 2, 400, 2500.0);
+        Room suiteRoom = new Room("Suite", 3, 750, 5000.0);
 
-        System.out.println("Single Room:");
-        System.out.println("Beds: 1");
-        System.out.println("Size: 250 sqft");
-        System.out.println("Price per night: 1500.0");
-        System.out.println("Available Rooms: " + availability.get("Single"));
+        RoomSearchService searchService = new RoomSearchService();
 
-        System.out.println();
-
-        System.out.println("Double Room:");
-        System.out.println("Beds: 2");
-        System.out.println("Size: 400 sqft");
-        System.out.println("Price per night: 2500.0");
-        System.out.println("Available Rooms: " + availability.get("Double"));
-
-        System.out.println();
-
-        System.out.println("Suite Room:");
-        System.out.println("Beds: 3");
-        System.out.println("Size: 750 sqft");
-        System.out.println("Price per night: 5000.0");
-        System.out.println("Available Rooms: " + availability.get("Suite"));
+        searchService.searchAvailableRooms(
+                inventory,
+                singleRoom,
+                doubleRoom,
+                suiteRoom
+        );
     }
 }
