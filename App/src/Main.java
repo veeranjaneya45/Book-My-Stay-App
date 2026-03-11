@@ -1,90 +1,113 @@
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Queue;
+import java.util.LinkedList;
 
 /*
- =========================================================
- Author : VEERANJANEYA REDDY
- Use Case 3 : Centralized Room Inventory Management
- =========================================================
+=========================================================
+Author : VEERANJANEYA REDDY
+Use Case 5 : Booking Request (First-Come-First-Served)
+=========================================================
 
- Description:
- This program demonstrates centralized room inventory
- management using a HashMap. The HashMap stores room
- type and available room count, ensuring a single
- source of truth for room availability.
+Description:
+This program demonstrates how booking requests
+are accepted and stored in a queue using FIFO
+(First-Come-First-Served) order.
 
- HashMap provides O(1) average lookup and update time,
- making it efficient for frequent availability checks.
+No room allocation or inventory update is done here.
+Requests are simply collected and processed later.
 
- Version : 3.0
+Version : 5.0
 */
 
-/*-------------------------------------------------------
-  CLASS : RoomInventory
--------------------------------------------------------*/
-class RoomInventory {
 
-    // HashMap to store room type and available rooms
-    private Map<String, Integer> roomAvailability;
+/*-----------------------------------------
+CLASS : Reservation
+-----------------------------------------*/
+class Reservation {
+
+    // Name of the guest
+    private String guestName;
+
+    // Requested room type
+    private String roomType;
 
     // Constructor
-    public RoomInventory() {
-        roomAvailability = new HashMap<>();
-        initializeInventory();
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    // Initialize inventory data
-    private void initializeInventory() {
-        roomAvailability.put("Single", 5);
-        roomAvailability.put("Double", 3);
-        roomAvailability.put("Suite", 2);
+    public String getGuestName() {
+        return guestName;
     }
 
-    // Get room availability
-    public Map<String, Integer> getRoomAvailability() {
-        return roomAvailability;
-    }
-
-    // Update room availability
-    public void updateAvailability(String roomType, int count) {
-        roomAvailability.put(roomType, count);
+    public String getRoomType() {
+        return roomType;
     }
 }
 
-/*-------------------------------------------------------
-  CLASS : UseCase3InventorySetup (Main Class)
--------------------------------------------------------*/
-public class Main {
+
+/*-----------------------------------------
+CLASS : BookingRequestQueue
+-----------------------------------------*/
+class BookingRequestQueue {
+
+    // Queue storing booking requests
+    private Queue<Reservation> requestQueue;
+
+    // Constructor
+    public BookingRequestQueue() {
+        requestQueue = new LinkedList<>();
+    }
+
+    // Add request to queue
+    public void addRequest(Reservation reservation) {
+        requestQueue.offer(reservation);
+    }
+
+    // Get next request
+    public Reservation getNextRequest() {
+        return requestQueue.poll();
+    }
+
+    // Check if queue has pending requests
+    public boolean hasPendingRequests() {
+        return !requestQueue.isEmpty();
+    }
+}
+
+
+/*-----------------------------------------
+MAIN CLASS
+-----------------------------------------*/
+public class Main{
 
     public static void main(String[] args) {
 
-        RoomInventory inventory = new RoomInventory();
-        Map<String, Integer> availability = inventory.getRoomAvailability();
+        System.out.println("Booking Request Queue\n");
 
-        System.out.println("Hotel Room Inventory Status\n");
+        // Initialize booking queue
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        System.out.println("Single Room:");
-        System.out.println("Beds: 1");
-        System.out.println("Size: 250 sqft");
-        System.out.println("Price per night: 1500.0");
-        System.out.println("Available Rooms: " + availability.get("Single"));
+        // Create booking requests
+        Reservation r1 = new Reservation("Abhi", "Single");
+        Reservation r2 = new Reservation("Subha", "Double");
+        Reservation r3 = new Reservation("Vanmathi", "Suite");
 
-        System.out.println();
+        // Add requests to queue
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        System.out.println("Double Room:");
-        System.out.println("Beds: 2");
-        System.out.println("Size: 400 sqft");
-        System.out.println("Price per night: 2500.0");
-        System.out.println("Available Rooms: " + availability.get("Double"));
+        // Process requests in FIFO order
+        while (bookingQueue.hasPendingRequests()) {
 
-        System.out.println();
+            Reservation r = bookingQueue.getNextRequest();
 
-        System.out.println("Suite Room:");
-        System.out.println("Beds: 3");
-        System.out.println("Size: 750 sqft");
-        System.out.println("Price per night: 5000.0");
-        System.out.println("Available Rooms: " + availability.get("Suite"));
+            System.out.println("Guest Name: " + r.getGuestName());
+            System.out.println("Requested Room: " + r.getRoomType());
+            System.out.println();
+        }
     }
 }
