@@ -3,10 +3,8 @@
 import java.util.*;
 
 /*
-=========================================================
 Author : VEERANJANEYA REDDY
 Use Case 6 : Reservation Confirmation & Room Allocation
-=========================================================
 
 Description:
 This program confirms booking requests and assigns
