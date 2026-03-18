@@ -1,135 +1,88 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * Author: Veeranjaneya
+ * Use Case 7: Add-On Service Selection
+ */
 
-/*
-=========================================================
-Author : VEERANJANEYA REDDY
-Use Case 4 : Room Search & Availability Check
-=========================================================
+import java.util.*;
 
-Description:
-This program demonstrates how guests can view
-available rooms without modifying inventory data.
+/**
+ * CLASS - Service
+ * Represents an optional add-on service
+ */
+class Service {
+    private String serviceName;
+    private double cost;
 
-Room availability is stored in a centralized
-HashMap inside the RoomInventory class.
-
-The RoomSearchService reads data from inventory
-and displays available rooms. It performs
-read-only operations on the inventory.
-
-Version : 4.0
-*/
-
-
-/*-----------------------------------------
-CLASS : Room
------------------------------------------*/
-class Room {
-
-    private String type;
-    private int beds;
-    private int size;
-    private double price;
-
-    public Room(String type, int beds, int size, double price) {
-        this.type = type;
-        this.beds = beds;
-        this.size = size;
-        this.price = price;
+    // Constructor
+    public Service(String serviceName, double cost) {
+        this.serviceName = serviceName;
+        this.cost = cost;
     }
 
-    public void displayDetails(int available) {
-        System.out.println(type + " Room:");
-        System.out.println("Beds: " + beds);
-        System.out.println("Size: " + size + " sqft");
-        System.out.println("Price per night: " + price);
-        System.out.println("Available Rooms: " + available);
-        System.out.println();
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public String getType() {
-        return type;
+    public double getCost() {
+        return cost;
     }
 }
 
+/**
+ * CLASS - AddOnServiceManager
+ * Manages services for reservations
+ */
+class AddOnServiceManager {
+    private Map<String, List<Service>> servicesByReservation;
 
-/*-----------------------------------------
-CLASS : RoomInventory
------------------------------------------*/
-class RoomInventory {
-
-    private Map<String, Integer> roomAvailability;
-
-    public RoomInventory() {
-        roomAvailability = new HashMap<>();
-        initializeInventory();
+    // Constructor
+    public AddOnServiceManager() {
+        servicesByReservation = new HashMap<>();
     }
 
-    private void initializeInventory() {
-        roomAvailability.put("Single", 5);
-        roomAvailability.put("Double", 3);
-        roomAvailability.put("Suite", 2);
+    // Add service to reservation
+    public void addService(String reservationId, Service service) {
+        servicesByReservation
+                .computeIfAbsent(reservationId, k -> new ArrayList<>())
+                .add(service);
     }
 
-    public Map<String, Integer> getRoomAvailability() {
-        return roomAvailability;
+    // Calculate total cost
+    public double calculateTotalServiceCost(String reservationId) {
+        double total = 0.0;
+
+        List<Service> services = servicesByReservation.get(reservationId);
+        if (services != null) {
+            for (Service s : services) {
+                total += s.getCost();
+            }
+        }
+        return total;
     }
 }
 
-
-/*-----------------------------------------
-CLASS : RoomSearchService
------------------------------------------*/
-class RoomSearchService {
-
-    public void searchAvailableRooms(
-            RoomInventory inventory,
-            Room singleRoom,
-            Room doubleRoom,
-            Room suiteRoom) {
-
-        Map<String, Integer> availability = inventory.getRoomAvailability();
-
-        System.out.println("Hotel Room Inventory Status\n");
-
-        if (availability.get("Single") > 0) {
-            singleRoom.displayDetails(availability.get("Single"));
-        }
-
-        if (availability.get("Double") > 0) {
-            doubleRoom.displayDetails(availability.get("Double"));
-        }
-
-        if (availability.get("Suite") > 0) {
-            suiteRoom.displayDetails(availability.get("Suite"));
-        }
-    }
-}
-
-
-/*-----------------------------------------
-MAIN CLASS : UseCase4RoomSearch
------------------------------------------*/
-public class Main {
+/**
+ * MAIN CLASS
+ */
+public class Main{
 
     public static void main(String[] args) {
 
-        RoomInventory inventory = new RoomInventory();
+        AddOnServiceManager manager = new AddOnServiceManager();
 
-        Room singleRoom = new Room("Single", 1, 250, 1500.0);
-        Room doubleRoom = new Room("Double", 2, 400, 2500.0);
-        Room suiteRoom = new Room("Suite", 3, 750, 5000.0);
+        String reservationId = "Single-1";
 
-        RoomSearchService searchService = new RoomSearchService();
+        // Adding services
+        manager.addService(reservationId, new Service("Breakfast", 500));
+        manager.addService(reservationId, new Service("Spa", 700));
+        manager.addService(reservationId, new Service("Airport Pickup", 300));
 
-        searchService.searchAvailableRooms(
-                inventory,
-                singleRoom,
-                doubleRoom,
-                suiteRoom
-        );
+        // Calculate total
+        double totalCost = manager.calculateTotalServiceCost(reservationId);
+
+        // Output
+        System.out.println("Add-On Service Selection");
+        System.out.println("Reservation ID: " + reservationId);
+        System.out.println("Total Add-On Cost: " + totalCost);
     }
 }
